@@ -16,7 +16,54 @@ app.use(bodyParser.json())
 
 app.use('/', express.static(path.join(__dirname, 'public')))
 app.use(morgan('dev'))
+const options = {
+    root: path.join(__dirname,'public')
+};
 
+const checkLogin = (req, res, next) => {
+    const token = req.cookies.token
+    console.log('checkLogin:',token);
+    if(!token) {
+        res.status(400).json("Chua dang nhap")
+    }
+    try {
+        const tokenData = jwt.verify(token,'mk');
+        AccountModel.findOne({username: tokenData.username}).then(data =>{
+            if(data)
+            {
+                req.data = data
+                console.log(data);
+                next()
+            }
+            else{
+                res.status(400).json("ko tim thay user")
+            }
+        })
+    } catch (error) {
+        res.status(400).json(error)
+    }
+    
+}
+const checkAdmin = (req, res, next) => {
+    const data = req.data
+    if(data.role >= 2){
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
+const checkUser = (req, res, next) => {
+    const data = req.data
+    if(data.role >= 1){
+        next();
+    } else {
+        res.redirect('/');
+    }
+}
+
+app.get('/home', checkLogin ,(req, res) => {
+    res.sendFile(path.join(__dirname,'public/home.html'))  
+})
 app.post('/login', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -43,34 +90,15 @@ app.post('/login', async (req, res) => {
         res.status(500).json("Loi server")
     }
 })
-const checkLogin = (req, res, next) => {
-    const token = req.cookies.token
-    console.log('checkLogin:',token);
-    if(!token) {
-        res.status(400).json("Chua dang nhap")
-    }
-    else{
-        jwt.verify(token,'mk',(err, data) => {
-            if(err || !data){
-                res.json(err)
-            }
-            console.log(data);
-            AccountModel.find({
-                username:data.username
-            }).then(data => {
-                if(!data) {
-                    res.status(400).json('Not found account')
-                }
-                req.data = data
-                next();
-            })
-        })
-    }
-}
-app.get('/private', checkLogin, (req, res) => {
-    res.send(req.data)
+
+app.get('/admin', checkLogin, checkAdmin, (req, res) => {
+    res.json("Welcome Admin")
+})
+app.get('/user', checkLogin, checkUser, (req,res) => {
+    res.json("Welcome User")
 })
 
+
 app.listen(port, () => {
-    console.log(`Server is listening on : ${port}`);
+    console.log(`Server is listening on : localhost:${port}`);
 })

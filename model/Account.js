@@ -21,7 +21,7 @@ const AccountModel = mongoose.model('Account', AccountSchema, 'Account');
 //         await AccountModel.create({
 //             username: `DuyNT${index + 1}`,
 //             password: '123456',
-//             role:0,
+//             role:1,
 //         })
         
 //     }
