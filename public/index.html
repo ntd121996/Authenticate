@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container>
+            
+            <v-text-field dense label="Username" v-model="username"></v-text-field>
+            <v-text-field dense label="Password" v-model="password"></v-text-field>
+            <v-btn @click="Login"> Login</v-btn>
+            <v-btn @click="Private"> Private</v-btn>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.1/qs.min.js" integrity="sha512-5Zv/hNtOKSkeScnIYOqGjng82gQSHsCoyqq9TgrJLgYa032cUYWH4kF1ayS8Gz1Jfge7e8MaBF6AeEvoQ92v8w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data() {
+        return {
+        username: "DuyNT1",
+        password: "123456",
+        }
+    },
+    methods:{
+        async Login(){
+            // const headers = { 
+            //   // 'Content-Type' : 'application/json',
+            //   'Content-Type' : 'application/x-www-form-urlencoded',
+            // };
+
+            const data = {
+                username:this.username,
+                password:this.password
+            }
+            const res = await axios.post('/login', data,
+            {headers: {'content-type': 'application/json'}});
+            if(res)
+            {
+              console.log(res);
+              
+              document.cookie = `token=${res.data.token}`;
+            }
+          //   axios.post('/login', data,
+          //   {headers: {'content-type': 'application/x-www-form-urlencoded'},
+          //   paramsSerializer: function (params) {
+          //   return Qs.stringify(params, {arrayFormat: 'brackets'})
+          // },}
+          // );
+    },
+    async Private(){
+      const res = await axios.get('/private');
+      console.log(res);
+    }
+  }
+  })
+  </script>
+</body>
+</html>
